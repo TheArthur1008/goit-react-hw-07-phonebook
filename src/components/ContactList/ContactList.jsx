@@ -2,8 +2,8 @@ import React from 'react';
 import { useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
 import Button from 'components/Button/Button';
-import { deleteContactAction } from 'redux/slice/contactsSlice';
 import styles from './ContactList.module.css';
+import { deleteContact } from 'redux/operations';
 
 export const ContactsList = ({ contacts }) => {
   const dispatch = useDispatch();
@@ -12,10 +12,8 @@ export const ContactsList = ({ contacts }) => {
       {contacts.map(i => {
         return (
           <li key={i.id} className={styles.list}>
-            {i.name}: {i.number}{' '}
-            <Button
-              handleDeleteCard={() => dispatch(deleteContactAction(i.id))}
-            />
+            {i.name}: {i.phone}{' '}
+            <Button handleDeleteCard={() => dispatch(deleteContact(i.id))} />
           </li>
         );
       })}

@@ -1,15 +1,29 @@
-import React, { useMemo } from 'react';
-import { useSelector } from 'react-redux';
-import { filterSelector } from 'redux/selectors/index';
-import { contactsSelector } from 'redux/selectors/index';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  selectContacts,
+  selectError,
+  selectFilter,
+  selectIsLoading,
+} from 'redux/selectors';
 import { ContactForm } from 'components/ContactForm/ContactForm';
 import { ContactsList } from 'components/ContactList/ContactList';
 import Filter from 'components/Filter/Filter';
 import styles from './App.module.css';
+import { fetchContacts } from 'redux/operations';
 
 export const App = () => {
-  const { contacts } = useSelector(contactsSelector);
-  const { filter } = useSelector(filterSelector);
+  const contacts = useSelector(selectContacts);
+  const filter = useSelector(selectFilter);
+  // console.log(contacts);
+
+  const dispatch = useDispatch();
+  const isLoading = useSelector(selectIsLoading);
+  const error = useSelector(selectError);
+
+  useEffect(() => {
+    dispatch(fetchContacts());
+  }, [dispatch]);
 
   const hendleAddContact = contact => {
     if (contacts.some(({ name }) => name === contact.name)) {
@@ -18,13 +32,9 @@ export const App = () => {
     }
   };
 
-  const filteredContacts = useMemo(() => {
-    return contacts.length
-      ? contacts.filter(({ name }) => {
-          return name.toLowerCase().includes(filter.toLowerCase());
-        })
-      : [];
-  }, [contacts, filter]);
+  const filteredContacts = contacts.filter(contact =>
+    contact.name.toLowerCase().includes(filter.toLowerCase())
+  );
 
   return (
     <div className={styles.wrapper}>
@@ -36,7 +46,12 @@ export const App = () => {
           <>
             <h2>Contacts</h2>
             <Filter />
-
+            {isLoading && !error && <p>Loading contacts...</p>}
+            {error && (
+              <p className={styles.error}>
+                Ooops, something went wrong! {error}
+              </p>
+            )}
             <ContactsList contacts={filteredContacts} />
           </>
         )}
